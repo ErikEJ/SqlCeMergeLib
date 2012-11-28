@@ -1,0 +1,74 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MergeLib", "SyncLibCS\MergeLib.csproj", "{EA4FFBC1-B3A5-4869-BE62-3D0E104A4903}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Items", "Items", "{6F8B5F56-3F2F-4EFF-99DA-FFABE7DC1112}"
+	ProjectSection(SolutionItems) = preProject
+		CreateDoc.Cmd = CreateDoc.Cmd
+	EndProjectSection
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "TestForm", "..\TestForm\TestForm.vbproj", "{F30BAD8D-AB5C-432E-B03F-58E1667A9011}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestFormCS", "TestFormCS\TestFormCS.csproj", "{4471B7ED-8A35-480C-A4E8-F00B4D17F22D}"
+EndProject
+Global
+	GlobalSection(TeamFoundationVersionControl) = preSolution
+		SccNumberOfProjects = 4
+		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccTeamFoundationServer = https://tfs.codeplex.com/tfs/tfs02
+		SccLocalPath0 = .
+		SccProjectUniqueName1 = ..\\TestForm\\TestForm.vbproj
+		SccProjectName1 = ../TestForm
+		SccLocalPath1 = ..\\TestForm
+		SccProjectUniqueName2 = SyncLibCS\\MergeLib.csproj
+		SccProjectName2 = SyncLibCS
+		SccLocalPath2 = SyncLibCS
+		SccProjectUniqueName3 = TestFormCS\\TestFormCS.csproj
+		SccProjectName3 = TestFormCS
+		SccLocalPath3 = TestFormCS
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|Mixed Platforms = Debug|Mixed Platforms
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|Mixed Platforms = Release|Mixed Platforms
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EA4FFBC1-B3A5-4869-BE62-3D0E104A4903}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EA4FFBC1-B3A5-4869-BE62-3D0E104A4903}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EA4FFBC1-B3A5-4869-BE62-3D0E104A4903}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{EA4FFBC1-B3A5-4869-BE62-3D0E104A4903}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{EA4FFBC1-B3A5-4869-BE62-3D0E104A4903}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{EA4FFBC1-B3A5-4869-BE62-3D0E104A4903}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EA4FFBC1-B3A5-4869-BE62-3D0E104A4903}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EA4FFBC1-B3A5-4869-BE62-3D0E104A4903}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{EA4FFBC1-B3A5-4869-BE62-3D0E104A4903}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{EA4FFBC1-B3A5-4869-BE62-3D0E104A4903}.Release|x86.ActiveCfg = Release|Any CPU
+		{F30BAD8D-AB5C-432E-B03F-58E1667A9011}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{F30BAD8D-AB5C-432E-B03F-58E1667A9011}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{F30BAD8D-AB5C-432E-B03F-58E1667A9011}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{F30BAD8D-AB5C-432E-B03F-58E1667A9011}.Debug|x86.ActiveCfg = Debug|x86
+		{F30BAD8D-AB5C-432E-B03F-58E1667A9011}.Debug|x86.Build.0 = Debug|x86
+		{F30BAD8D-AB5C-432E-B03F-58E1667A9011}.Release|Any CPU.ActiveCfg = Release|x86
+		{F30BAD8D-AB5C-432E-B03F-58E1667A9011}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{F30BAD8D-AB5C-432E-B03F-58E1667A9011}.Release|Mixed Platforms.Build.0 = Release|x86
+		{F30BAD8D-AB5C-432E-B03F-58E1667A9011}.Release|x86.ActiveCfg = Release|x86
+		{F30BAD8D-AB5C-432E-B03F-58E1667A9011}.Release|x86.Build.0 = Release|x86
+		{4471B7ED-8A35-480C-A4E8-F00B4D17F22D}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{4471B7ED-8A35-480C-A4E8-F00B4D17F22D}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{4471B7ED-8A35-480C-A4E8-F00B4D17F22D}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{4471B7ED-8A35-480C-A4E8-F00B4D17F22D}.Debug|x86.ActiveCfg = Debug|x86
+		{4471B7ED-8A35-480C-A4E8-F00B4D17F22D}.Debug|x86.Build.0 = Debug|x86
+		{4471B7ED-8A35-480C-A4E8-F00B4D17F22D}.Release|Any CPU.ActiveCfg = Release|x86
+		{4471B7ED-8A35-480C-A4E8-F00B4D17F22D}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{4471B7ED-8A35-480C-A4E8-F00B4D17F22D}.Release|Mixed Platforms.Build.0 = Release|x86
+		{4471B7ED-8A35-480C-A4E8-F00B4D17F22D}.Release|x86.ActiveCfg = Release|x86
+		{4471B7ED-8A35-480C-A4E8-F00B4D17F22D}.Release|x86.Build.0 = Release|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
