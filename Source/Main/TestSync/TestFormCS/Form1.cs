@@ -75,13 +75,14 @@ namespace TestFormCS
                 textBox1.Clear();
                 string sdfFile = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "MergeTest.sdf");
                 conn = new SqlCeConnection(string.Format("Data Source={0}", sdfFile));
+                textBox1.AppendText("Runtime version (must be 3.5.8088 or higher for Merge with SQL 2012): " + Environment.NewLine + conn.ServerVersion.ToString());
 
                 DateTime syncDate = sync.GetLastSuccessfulSyncTime(conn);
-                textBox1.Text = "Last Sync: " + syncDate.ToString();
+                textBox1.AppendText(Environment.NewLine + "Last Sync: " + syncDate.ToString());
 
                 sync.Completed += SyncCompletedEvent;
                 sync.Progress += SyncProgressEvent;
-                sync.Synchronize(conn, 1002, 1);
+                sync.Synchronize(conn, 1002);
 
             }
             catch (SqlCeException sqlex)
