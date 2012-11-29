@@ -14,7 +14,7 @@ namespace ErikEJ.SqlCeMergeLib
     /// </summary>
     public class MergeReplication
     {
-        private int _hostName;
+        private string _hostName;
         private int _additionalId;
         private string _additionalInfo;
         private SqlCeConnection _connection;
@@ -66,7 +66,7 @@ namespace ErikEJ.SqlCeMergeLib
         /// <param name="hostName">The parameter used to filter the Publication</param>
         /// <param name="additionalId">Additional identification</param>
         /// <param name="additionalInfo">Additional information</param>
-        public void Synchronize(SqlCeConnection connection, int hostName, int additionalId, string additionalInfo)
+        public void Synchronize(SqlCeConnection connection, string hostName, int additionalId, string additionalInfo)
         {
             _hostName = hostName;
             _additionalId = additionalId;
@@ -81,31 +81,29 @@ namespace ErikEJ.SqlCeMergeLib
 
             ReplicationProperties props = GetPropertiesFromSettings();
 
-            using (SqlCeReplication repl = new SqlCeReplication())
-            {
-                repl.Subscriber = hostName.ToString();
-                repl.SubscriberConnectionString = connection.ConnectionString;
-                repl.HostName = hostName.ToString();
-                repl.PostSyncCleanup = 2;
-                props = SetProperties(props, repl);
+            SqlCeReplication repl = new SqlCeReplication();
 
-                InsertSyncLog(connection, hostName, additionalId, "Attempt", additionalInfo);
+            repl.Subscriber = hostName.ToString();
+            repl.SubscriberConnectionString = connection.ConnectionString;
+            repl.HostName = hostName.ToString();
+            repl.PostSyncCleanup = 2;
+            props = SetProperties(props, repl);
 
-                IAsyncResult ar = repl.BeginSynchronize(
-                    new AsyncCallback(this.SyncCompletedCallback),
-                    new OnStartTableUpload(this.OnStartTableUploadCallback),
-                    new OnStartTableDownload(this.OnStartTableDownloadCallback),
-                    new OnSynchronization(this.OnSynchronizationCallback),
-                repl);
-            }
+            InsertSyncLog(connection, hostName, additionalId, "Attempt", additionalInfo);
+
+            IAsyncResult ar = repl.BeginSynchronize(
+                new AsyncCallback(this.SyncCompletedCallback),
+                new OnStartTableUpload(this.OnStartTableUploadCallback),
+                new OnStartTableDownload(this.OnStartTableDownloadCallback),
+                new OnSynchronization(this.OnSynchronizationCallback),
+            repl);
         }
 
         private void SyncCompletedCallback(IAsyncResult ar)
         {
+            SqlCeReplication repl = (SqlCeReplication)ar.AsyncState;
             try
             {
-                SqlCeReplication repl = (SqlCeReplication)ar.AsyncState;
-
                 repl.EndSynchronize(ar);
                 repl.SaveProperties();
                 string result = "Successfully completed sync" + Environment.NewLine;
@@ -114,7 +112,7 @@ namespace ErikEJ.SqlCeMergeLib
                 result += string.Format("Number of conflicts at Publisher:   {0}{1}", repl.PublisherConflicts.ToString(), Environment.NewLine);
                 SyncArgs args = new SyncArgs(result, null, 100, SyncStatus.SyncComplete, null);
                 Completed(this, args);
-                InsertSyncLog(_connection, _hostName, _additionalId, "Success", _additionalInfo); 
+                InsertSyncLog(_connection, _hostName, _additionalId, "Success", _additionalInfo);
             }
             catch (SqlCeException e)
             {
@@ -129,6 +127,11 @@ namespace ErikEJ.SqlCeMergeLib
                     args = new SyncArgs("Errors occured during sync", e, 100, SyncStatus.SyncFailed, null);
                 }
                 Completed(this, args);
+            }
+            finally
+            {
+                if (repl != null)
+                    repl.Dispose();
             }
         }
 
@@ -157,31 +160,9 @@ namespace ErikEJ.SqlCeMergeLib
         /// <param name="hostName">The parameter used to filter the Publication</param>
         public void Synchronize(SqlCeConnection connection, int hostName)
         {
-            Synchronize(connection, hostName, -1, string.Empty);
+            Synchronize(connection, hostName.ToString(), -1, string.Empty);
         }
-
-        /// <summary>
-        /// Initiate a synchronization with the Web Agent based on the settings in app.config
-        /// </summary>
-        /// <param name="connection">A SqlCeConnection that point to the local database. Preferably closed.</param>
-        /// <param name="hostName">The parameter used to filter the Publication</param>
-        /// <param name="additionalInfo">Additional information</param>
-        public void Synchronize(SqlCeConnection connection, int hostName, string additionalInfo)
-        {
-            Synchronize(connection, hostName, -1, additionalInfo);
-        }
-
-        /// <summary>
-        /// Initiate a synchronization with the Web Agent based on the settings in app.config
-        /// </summary>
-        /// <param name="connection">A SqlCeConnection that point to the local database. Preferably closed.</param>
-        /// <param name="hostName">The parameter used to filter the Publication</param>
-        /// <param name="additionalId">Additional identification</param>
-        public void Synchronize(SqlCeConnection connection, int hostName, int additionalId)
-        {
-            Synchronize(connection, hostName, additionalId, string.Empty);
-        }
-        
+       
         /// <summary>
         /// Get the local Datetime for last succesful synchronization
         /// If no Synchronization has happened, will return DateTime.MinValue
@@ -424,14 +405,11 @@ namespace ErikEJ.SqlCeMergeLib
             return props;
         }
 
-        private void InsertSyncLog(SqlCeConnection connection, int hostName, int otherId, string status, string syncInfo)
+        private void InsertSyncLog(SqlCeConnection connection, string hostName, int otherId, string status, string syncInfo)
         {
             //TODO Add a SyncLog table to the publication to collect Sync status messages, if desired
-            return;
-
             try
             {
-
                 if (connection.State != System.Data.ConnectionState.Open)
                 {
                     connection.Open();
@@ -464,6 +442,7 @@ namespace ErikEJ.SqlCeMergeLib
 
                 }
             }
+            // Ignore if the table does not exist or this somehow fails anyway
             catch { }
         }
 
@@ -505,6 +484,9 @@ namespace ErikEJ.SqlCeMergeLib
 
     }
 
+    /// <summary>
+    /// Sync args
+    /// </summary>
     public class SyncArgs : System.EventArgs
     {
         private int percentComplete;
@@ -512,7 +494,15 @@ namespace ErikEJ.SqlCeMergeLib
         private Exception exception;
         private string tableName;
         private SyncStatus status;
-
+        
+        /// <summary>
+        /// Construct a new instacne of SyncArgs
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="ex"></param>
+        /// <param name="percentComplete"></param>
+        /// <param name="status"></param>
+        /// <param name="tableName"></param>
         public SyncArgs(string message, Exception ex, int percentComplete, SyncStatus status, string tableName)
         {
             this.message = message;
@@ -522,26 +512,41 @@ namespace ErikEJ.SqlCeMergeLib
             this.tableName = tableName;
         }
 
+        /// <summary>
+        /// Message
+        /// </summary>
         public string Message
         {
             get { return message; }
         }
 
+        /// <summary>
+        /// Exception
+        /// </summary>
         public Exception Exception
         {
             get { return exception; }
         }
 
+        /// <summary>
+        /// Percentage complete
+        /// </summary>
         public int PercentComplete
         {
             get { return percentComplete; }
         }
 
+        /// <summary>
+        /// Status
+        /// </summary>
         public SyncStatus SyncStatus
         {
             get { return status; }
         }
 
+        /// <summary>
+        /// The table name
+        /// </summary>
         public string TableName
         {
             get { return tableName; }
