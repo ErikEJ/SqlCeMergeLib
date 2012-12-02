@@ -374,10 +374,12 @@ namespace ErikEJ.SqlCeMergeLib
             if (props.UseNT)
             {
                 repl.PublisherSecurityMode = SecurityType.NTAuthentication;
+                repl.DistributorSecurityMode = SecurityType.NTAuthentication;
             }
             else
             {
                 repl.PublisherSecurityMode = SecurityType.DBAuthentication;
+                repl.DistributorSecurityMode = SecurityType.DBAuthentication;
             }
             repl.Publisher = props.Publisher;
             repl.PublisherLogin = props.PublisherLogin;
