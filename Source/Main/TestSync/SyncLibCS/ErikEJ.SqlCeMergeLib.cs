@@ -68,6 +68,19 @@ namespace ErikEJ.SqlCeMergeLib
         /// <param name="additionalInfo">Additional information</param>
         public void Synchronize(SqlCeConnection connection, string hostName, int additionalId, string additionalInfo)
         {
+            Synchronize(connection, hostName, additionalId, additionalInfo, ReinitializeOption.None);
+        }
+
+        /// <summary>
+        /// Initiate a synchronization with the Web Agent based on the settings in app.config
+        /// </summary>
+        /// <param name="connection">A SqlCeConnection that point to the local database. Preferably closed.</param>
+        /// <param name="hostName">The parameter used to filter the Publication</param>
+        /// <param name="additionalId">Additional identification</param>
+        /// <param name="additionalInfo">Additional information</param>
+        /// <param name="option">ReinitializeOption</param>
+        public void Synchronize(SqlCeConnection connection, string hostName, int additionalId, string additionalInfo, ReinitializeOption option)
+        {
             _hostName = hostName;
             _additionalId = additionalId;
             _additionalInfo = additionalInfo;
@@ -90,6 +103,14 @@ namespace ErikEJ.SqlCeMergeLib
             props = SetProperties(props, repl);
 
             InsertSyncLog(connection, hostName, additionalId, "Attempt", additionalInfo);
+            if (option == ReinitializeOption.ReinitializeNoUpload)
+            {
+                repl.ReinitializeSubscription(false);
+            }
+            if (option == ReinitializeOption.ReinitializeUploadSubscriberChanges)
+            {
+                repl.ReinitializeSubscription(true);
+            }
 
             IAsyncResult ar = repl.BeginSynchronize(
                 new AsyncCallback(this.SyncCompletedCallback),
@@ -161,6 +182,17 @@ namespace ErikEJ.SqlCeMergeLib
         public void Synchronize(SqlCeConnection connection, int hostName)
         {
             Synchronize(connection, hostName.ToString(), -1, string.Empty);
+        }
+
+        /// <summary>
+        /// Initiate a synchronization with the Web Agent based on the settings in app.config
+        /// </summary>
+        /// <param name="connection">A SqlCeConnection that point to the local database. Preferably closed.</param>
+        /// <param name="hostName">The parameter used to filter the Publication</param>
+        /// <param name="option">ReinitializeOption</param>
+        public void Synchronize(SqlCeConnection connection, int hostName, ReinitializeOption option)
+        {
+            Synchronize(connection, hostName.ToString(), -1, string.Empty, option);
         }
        
         /// <summary>
@@ -552,6 +584,25 @@ namespace ErikEJ.SqlCeMergeLib
             get { return tableName; }
         }
 
+    }
+
+    /// <summary>
+    /// How will the subscription be reinitialize
+    /// </summary>
+    public enum ReinitializeOption
+    { 
+        /// <summary>
+        /// Reinitialize and upload subscriber changes first
+        /// </summary>
+        ReinitializeUploadSubscriberChanges,
+        /// <summary>
+        /// Reinitialize do not upload subscriber changes
+        /// </summary>
+        ReinitializeNoUpload,
+        /// <summary>
+        /// Do not reinitialize 
+        /// </summary>
+        None
     }
 
     /// <summary>
