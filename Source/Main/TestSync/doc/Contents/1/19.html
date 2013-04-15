@@ -6,12 +6,12 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"></meta>
 <link rel="stylesheet" type="text/css" href="../../CSS/Contents.css"></link>
 <script type="text/javascript" src="../../JS/Common.js"></script>
-<title>MergeReplication.Synchronize Method (SqlCeConnection, int)</title>
+<title>MergeReplication.Synchronize Method (SqlCeConnection, string, int, string)</title>
 </head>
 <body>
 <div id="Header">
 <div id="ProjectTitle">Documentation Project</div>
-<div id="PageTitle">MergeReplication.Synchronize Method (SqlCeConnection, int)</div>
+<div id="PageTitle">MergeReplication.Synchronize Method (SqlCeConnection, string, int, string)</div>
 <div id="HeaderShortcuts">
 <a href="#SectionHeader0" onclick="javascript: SetSectionVisibility(0, true); SetExpandCollapseAllToCollapseAll();">Syntax</a>&nbsp;
 </div>
@@ -42,7 +42,9 @@ Syntax
 <div id="SectionContainerDiv0" class="SectionContainer">
 <table class="CodeTable"><col width="100%" /><tr class="CodeTable"><th class="CodeTable">C#</th></tr><tr class="CodeTable"><td class="CodeTable"><pre style="margin-left: 2px;">public void Synchronize (
         SqlCeConnection <i>connection</i>,
-        int <i>hostName</i>
+        string <i>hostName</i>,
+        int <i>additionalId</i>,
+        string <i>additionalInfo</i>
 ) </pre></td></tr></table>
 <div class="CommentHeader">Parameters</div>
 <div class="CommentParameterName">connection</div>
@@ -52,6 +54,14 @@ A SqlCeConnection that point to the local database. Preferably closed.
 <div class="CommentParameterName">hostName</div>
 <div class="ParameterCommentContainer">
 The parameter used to filter the Publication
+</div>
+<div class="CommentParameterName">additionalId</div>
+<div class="ParameterCommentContainer">
+Additional identification
+</div>
+<div class="CommentParameterName">additionalInfo</div>
+<div class="ParameterCommentContainer">
+Additional information
 </div>
 <div class="TopLink"><a href="#ContentsAnchor">Top</a></div></div>
 </div>
