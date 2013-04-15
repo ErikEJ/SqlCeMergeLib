@@ -8,8 +8,8 @@
     <ProjectGuid>{EA4FFBC1-B3A5-4869-BE62-3D0E104A4903}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>SyncLibCS</RootNamespace>
-    <AssemblyName>SyncLibCS</AssemblyName>
+    <RootNamespace>ErikEJ.SqlCeMergeLib</RootNamespace>
+    <AssemblyName>ErikEJ.SqlCeMergeLib</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SccProjectName>SAK</SccProjectName>
@@ -25,7 +25,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Debug\SyncLibCS.XML</DocumentationFile>
+    <DocumentationFile>bin\Debug\ErikEJ.SqlCeMergeLib.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -55,6 +55,9 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ErikEJ.SqlCeMergeLib.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ErikEJ.SqlCeMergeLib.nuspec" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
