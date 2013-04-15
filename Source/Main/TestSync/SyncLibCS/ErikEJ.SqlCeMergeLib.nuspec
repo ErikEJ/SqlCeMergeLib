@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<package xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <metadata xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <id>ErikEJ.SqlCeMergeLib</id>
+    <version>1.0.0.0</version>
+    <authors>ErikEJ</authors>
+    <owners>ErikEJ</owners>
+    <licenseUrl>http://sqlcemergelib.codeplex.com/license</licenseUrl>
+    <projectUrl>http://sqlcemergelib.codeplex.com/</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>For SQL Server Compact 3.5 SP2, for easy inclusion of Merge Replication support in your own application. Requires SQL Server Compact 3.5 SP2 runtime installed. See project site for samples and documentation.</description>
+    <tags>sqlce sql compact script merge replication</tags>
+    <dependencies/>
+  </metadata>
+  <files>
+	  <file src="..\..\SyncLib\TestSync\SyncLibCS\bin\Release\SqlCeScripting.dll" target="lib\net" />
+	  <file src="..\..\SyncLib\TestSync\SyncLibCS\bin\Release\ISqlCeScripting.dll" target="lib\net" />
+	  <file src="..\..\SyncLib\TestSync\SyncLibCS\bin\Release\ErikEJ.SqlCeMergeLib.dll" target="lib\net" />
+  </files>
+</package>
