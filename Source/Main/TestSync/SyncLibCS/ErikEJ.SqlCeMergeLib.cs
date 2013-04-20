@@ -18,6 +18,7 @@ namespace ErikEJ.SqlCeMergeLib
         private int _additionalId;
         private string _additionalInfo;
         private SqlCeConnection _connection;
+        private string _configPrefix = string.Empty;
 
         /// <summary>
         /// Event occurs when synchronization has completed or failed
@@ -69,6 +70,19 @@ namespace ErikEJ.SqlCeMergeLib
         public void Synchronize(SqlCeConnection connection, string hostName, int additionalId, string additionalInfo)
         {
             Synchronize(connection, hostName, additionalId, additionalInfo, ReinitializeOption.None);
+        }
+
+        /// <summary>
+        /// Sets an optional configuration key prefix, allowing multiple groups of settings in app.config.
+        /// This will allow you to have settings for both test and production in the same .config file.
+        /// </summary>
+        public string ConfigurationKeyPrefix
+        {
+            set
+            {
+                if (!string.IsNullOrEmpty(value))
+                    _configPrefix = value;
+            }
         }
 
         /// <summary>
@@ -422,18 +436,19 @@ namespace ErikEJ.SqlCeMergeLib
             return props;
         }
 
-        private static ReplicationProperties GetPropertiesFromSettings()
+        private ReplicationProperties GetPropertiesFromSettings()
         {
             var props = new ReplicationProperties();
-            props.InternetLogin = ConfigurationManager.AppSettings["InternetLogin"];
-            props.InternetPassword = ConfigurationManager.AppSettings["InternetPassword"];
-            props.InternetUrl = ConfigurationManager.AppSettings["InternetUrl"];
-            props.Publication = ConfigurationManager.AppSettings["Publication"];
-            props.Publisher = ConfigurationManager.AppSettings["Publisher"];
-            props.PublisherDatabase = ConfigurationManager.AppSettings["PublisherDatabase"];
-            props.PublisherLogin = ConfigurationManager.AppSettings["PublisherLogin"];
-            props.PublisherPassword = ConfigurationManager.AppSettings["PublisherPassword"];
-            props.UseNT = Convert.ToBoolean(ConfigurationManager.AppSettings["UseNT"]);
+
+            props.InternetLogin = ConfigurationManager.AppSettings[_configPrefix + "InternetLogin"];
+            props.InternetPassword = ConfigurationManager.AppSettings[_configPrefix + "InternetPassword"];
+            props.InternetUrl = ConfigurationManager.AppSettings[_configPrefix + "InternetUrl"];
+            props.Publication = ConfigurationManager.AppSettings[_configPrefix + "Publication"];
+            props.Publisher = ConfigurationManager.AppSettings[_configPrefix + "Publisher"];
+            props.PublisherDatabase = ConfigurationManager.AppSettings[_configPrefix + "PublisherDatabase"];
+            props.PublisherLogin = ConfigurationManager.AppSettings[_configPrefix + "PublisherLogin"];
+            props.PublisherPassword = ConfigurationManager.AppSettings[_configPrefix + "PublisherPassword"];
+            props.UseNT = Convert.ToBoolean(ConfigurationManager.AppSettings[_configPrefix + "UseNT"]);
             return props;
         }
 

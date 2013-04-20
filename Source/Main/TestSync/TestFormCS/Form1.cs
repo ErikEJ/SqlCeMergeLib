@@ -83,7 +83,6 @@ namespace TestFormCS
                 sync.Completed += SyncCompletedEvent;
                 sync.Progress += SyncProgressEvent;
                 sync.Synchronize(conn, 1002);
-
             }
             catch (SqlCeException sqlex)
             {
