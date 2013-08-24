@@ -175,6 +175,11 @@ namespace ErikEJ.SqlCeMergeLib
             {
                 if (repl != null)
                     repl.Dispose();
+                if (_connection != null)
+                {
+                    _connection.Close();
+                    _connection.Dispose();
+                }
             }
         }
 
