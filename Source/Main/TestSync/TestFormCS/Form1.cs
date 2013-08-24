@@ -77,6 +77,9 @@ namespace TestFormCS
                 conn = new SqlCeConnection(string.Format("Data Source={0}", sdfFile));
                 textBox1.AppendText("Runtime version (must be 3.5.8088 or higher for Merge with SQL 2012): " + Environment.NewLine + conn.ServerVersion.ToString());
 
+                //Optionally specify replication properties in code:
+                //sync.ReplicationProperties = new ReplicationProperties();
+
                 DateTime syncDate = sync.GetLastSuccessfulSyncTime(conn);
                 textBox1.AppendText(Environment.NewLine + "Last Sync: " + syncDate.ToString());
 
