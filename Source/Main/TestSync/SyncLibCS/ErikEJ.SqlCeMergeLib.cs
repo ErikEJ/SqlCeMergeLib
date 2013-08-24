@@ -44,7 +44,7 @@ namespace ErikEJ.SqlCeMergeLib
         /// </summary>
         public event ProgressHandler Progress; 
         
-        private struct ReplicationProperties
+        private class ReplicationProperties
         {
             public string SubscriberConnectionString { get; set; }
             public bool UseNT { get; set; }
@@ -84,12 +84,12 @@ namespace ErikEJ.SqlCeMergeLib
                     _configPrefix = value;
             }
         }
-
+        
         /// <summary>
         /// Initiate a synchronization with the Web Agent based on the settings in app.config
         /// </summary>
         /// <param name="connection">A SqlCeConnection that point to the local database. Preferably closed.</param>
-        /// <param name="hostName">The parameter used to filter the Publication</param>
+        /// <param name="hostName">The parameter used to filter the Publication (not required)</param>
         /// <param name="additionalId">Additional identification</param>
         /// <param name="additionalInfo">Additional information</param>
         /// <param name="option">ReinitializeOption</param>
@@ -112,7 +112,15 @@ namespace ErikEJ.SqlCeMergeLib
 
             repl.Subscriber = hostName.ToString();
             repl.SubscriberConnectionString = connection.ConnectionString;
-            repl.HostName = hostName.ToString();
+            if (!string.IsNullOrWhiteSpace(hostName))
+            {
+                repl.HostName = hostName;
+                repl.Subscriber = hostName;
+            }
+            if (!string.IsNullOrWhiteSpace(props.Subscriber))
+            {
+                repl.Subscriber = props.Subscriber;
+            }
             repl.PostSyncCleanup = 2;
             props = SetProperties(props, repl);
 
@@ -449,6 +457,7 @@ namespace ErikEJ.SqlCeMergeLib
             props.PublisherLogin = ConfigurationManager.AppSettings[_configPrefix + "PublisherLogin"];
             props.PublisherPassword = ConfigurationManager.AppSettings[_configPrefix + "PublisherPassword"];
             props.UseNT = Convert.ToBoolean(ConfigurationManager.AppSettings[_configPrefix + "UseNT"]);
+            props.Subscriber = ConfigurationManager.AppSettings[_configPrefix + "Subscriber"];
             return props;
         }
 
