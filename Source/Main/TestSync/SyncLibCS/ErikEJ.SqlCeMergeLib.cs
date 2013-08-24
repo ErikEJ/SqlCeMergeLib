@@ -44,10 +44,11 @@ namespace ErikEJ.SqlCeMergeLib
         /// </summary>
         public event ProgressHandler Progress; 
         
-        private class ReplicationProperties
+        public class ReplicationProperties
         {
             public string SubscriberConnectionString { get; set; }
             public bool UseNT { get; set; }
+            public bool UseProxy { get; set; }
             public string Publisher { get; set; }
             public string PublisherLogin { get; set; }
             public string PublisherPassword { get; set; }
@@ -58,6 +59,9 @@ namespace ErikEJ.SqlCeMergeLib
             public string InternetPassword { get; set; }
             public string Subscriber { get; set; }
             public string HostName { get; set; }
+            public string InternetProxyLogin { get; set; }
+            public string InternetProxyPassword { get; set; }
+            public string InternetProxyServer { get; set; }
         }
 
         /// <summary>
@@ -121,6 +125,7 @@ namespace ErikEJ.SqlCeMergeLib
             {
                 repl.Subscriber = props.Subscriber;
             }
+
             repl.PostSyncCleanup = 2;
             props = SetProperties(props, repl);
 
@@ -438,6 +443,12 @@ namespace ErikEJ.SqlCeMergeLib
             {
                 repl.PublisherSecurityMode = SecurityType.DBAuthentication;
             }
+            if (props.UseProxy == true)
+            {
+                repl.InternetProxyLogin = props.InternetProxyLogin;
+                repl.InternetProxyPassword = props.InternetProxyPassword;
+                repl.InternetProxyServer = props.InternetProxyServer;
+            }
             repl.Publisher = props.Publisher;
             repl.PublisherLogin = props.PublisherLogin;
             repl.PublisherPassword = props.PublisherPassword;
@@ -463,6 +474,10 @@ namespace ErikEJ.SqlCeMergeLib
             props.PublisherPassword = ConfigurationManager.AppSettings[_configPrefix + "PublisherPassword"];
             props.UseNT = Convert.ToBoolean(ConfigurationManager.AppSettings[_configPrefix + "UseNT"]);
             props.Subscriber = ConfigurationManager.AppSettings[_configPrefix + "Subscriber"];
+            props.UseProxy = Convert.ToBoolean(ConfigurationManager.AppSettings[_configPrefix + "UseProxy"]);
+            props.InternetProxyLogin = ConfigurationManager.AppSettings[_configPrefix + "InternetProxyLogin"];
+            props.InternetProxyPassword = ConfigurationManager.AppSettings[_configPrefix + "InternetProxyPassword"];
+            props.InternetProxyServer = ConfigurationManager.AppSettings[_configPrefix + "InternetProxyServer"];
             return props;
         }
 
