@@ -1,2 +1,2 @@
-.\Lib\ImmDocNet -ForceDelete .\SyncLibCS\bin\Debug\SyncLibCS.dll .\SyncLibCS\bin\Debug\SyncLibCS.xml
+.\Lib\ImmDocNet -ForceDelete .\SyncLibCS\bin\Debug\ErikEJ.SqlCeMergeLib.dll .\SyncLibCS\bin\Debug\ErikEJ.SqlCeMergeLib.xml
  pause
