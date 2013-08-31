@@ -19,6 +19,7 @@ namespace ErikEJ.SqlCeMergeLib
         private string _additionalInfo;
         private SqlCeConnection _connection;
         private string _configPrefix = string.Empty;
+        private string _dbPassword = string.Empty;
 
         /// <summary>
         /// Event occurs when synchronization has completed or failed
@@ -71,6 +72,18 @@ namespace ErikEJ.SqlCeMergeLib
         }
 
         /// <summary>
+        /// Sets an optional database password.
+        /// </summary>
+        public string DatabasePassword
+        {
+            set
+            {
+                if (!string.IsNullOrEmpty(value))
+                    _dbPassword = value;
+            }
+        }
+
+        /// <summary>
         /// Allows you to specify replication properties in code.
         /// </summary>
         public ReplicationProperties ReplicationProperties { get; set; }
@@ -101,7 +114,7 @@ namespace ErikEJ.SqlCeMergeLib
             SqlCeReplication repl = new SqlCeReplication();
 
             repl.Subscriber = hostName.ToString();
-            repl.SubscriberConnectionString = connection.ConnectionString;
+            repl.SubscriberConnectionString = GetSubscriberConnectionString(connection);
             if (!string.IsNullOrWhiteSpace(hostName))
             {
                 repl.HostName = hostName;
@@ -226,6 +239,7 @@ namespace ErikEJ.SqlCeMergeLib
 
             if (connection.State != System.Data.ConnectionState.Open)
             {
+                connection.ConnectionString = GetSubscriberConnectionString(connection);
                 connection.Open();
             }
             
@@ -467,6 +481,18 @@ namespace ErikEJ.SqlCeMergeLib
             props.InternetProxyPassword = ConfigurationManager.AppSettings[_configPrefix + "InternetProxyPassword"];
             props.InternetProxyServer = ConfigurationManager.AppSettings[_configPrefix + "InternetProxyServer"];
             return props;
+        }
+
+        private string GetSubscriberConnectionString(SqlCeConnection conn)
+        {
+            if (!string.IsNullOrWhiteSpace(_dbPassword))
+            {
+                return conn.ConnectionString + ";Password=" + _dbPassword;
+            }
+            else
+            {
+                return conn.ConnectionString;
+            }
         }
 
         private void InsertSyncLog(SqlCeConnection connection, string hostName, int otherId, string status, string syncInfo)

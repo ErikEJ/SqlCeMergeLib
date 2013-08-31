@@ -43,6 +43,7 @@ namespace TestFormCS
                     break;
 
                 case SyncStatus.SyncComplete:
+                    button1.Enabled = true;
                     break;
 
                 case SyncStatus.SyncFailed:
@@ -64,6 +65,7 @@ namespace TestFormCS
                                 break;
                         }
                     }
+                    button1.Enabled = true;
                     break;
             }
         }
@@ -72,9 +74,15 @@ namespace TestFormCS
         {
             try
             {
-                textBox1.Clear();
+                button1.Enabled = false;
+                textBox1.Text = string.Empty;
                 string sdfFile = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "MergeTest.sdf");
                 conn = new SqlCeConnection(string.Format("Data Source={0}", sdfFile));
+                
+                //To use a password, use the following syntax
+                conn = new SqlCeConnection(string.Format("Data Source={0}", sdfFile));
+                sync.DatabasePassword = "secret";
+
                 textBox1.AppendText("Runtime version (must be 3.5.8088 or higher for Merge with SQL 2012): " + Environment.NewLine + conn.ServerVersion.ToString());
 
                 //Optionally specify replication properties in code:
@@ -82,7 +90,7 @@ namespace TestFormCS
 
                 DateTime syncDate = sync.GetLastSuccessfulSyncTime(conn);
                 textBox1.AppendText(Environment.NewLine + "Last Sync: " + syncDate.ToString());
-
+                
                 sync.Completed += SyncCompletedEvent;
                 sync.Progress += SyncProgressEvent;
                 sync.Synchronize(conn, 1002);
@@ -90,11 +98,14 @@ namespace TestFormCS
             catch (SqlCeException sqlex)
             {
                 MessageBox.Show(sync.ShowErrors(sqlex));
+                button1.Enabled = true;
             }
         }
 
         private void SyncCompletedEvent(object sender, SyncArgs e)
         {
+            sync.Completed -= SyncCompletedEvent;
+            sync.Progress -= SyncProgressEvent;
             syncArgs = e;
             this.Invoke(myStatusEvent);
         }
