@@ -44,6 +44,8 @@ namespace TestFormCS
 
                 case SyncStatus.SyncComplete:
                     button1.Enabled = true;
+                    //Optionally validate that the database has been properly replicated
+                    //sync.Validate(conn);
                     break;
 
                 case SyncStatus.SyncFailed:
@@ -76,12 +78,12 @@ namespace TestFormCS
             {
                 button1.Enabled = false;
                 textBox1.Text = string.Empty;
-                string sdfFile = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "MergeTest.sdf");
+                string sdfFile = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Merge.sdf");
                 conn = new SqlCeConnection(string.Format("Data Source={0}", sdfFile));
                 
                 //To use a password, use the following syntax
-                conn = new SqlCeConnection(string.Format("Data Source={0}", sdfFile));
-                sync.DatabasePassword = "secret";
+                //conn = new SqlCeConnection(string.Format("Data Source={0}", sdfFile));
+                //sync.DatabasePassword = "secret";
 
                 textBox1.AppendText("Runtime version (must be 3.5.8088 or higher for Merge with SQL 2012): " + Environment.NewLine + conn.ServerVersion.ToString());
 

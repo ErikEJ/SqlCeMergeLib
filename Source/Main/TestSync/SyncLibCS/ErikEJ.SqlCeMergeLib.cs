@@ -336,6 +336,7 @@ namespace ErikEJ.SqlCeMergeLib
 
             if (connection.State != System.Data.ConnectionState.Open)
             {
+                connection.ConnectionString = GetSubscriberConnectionString(connection);
                 connection.Open();
             }
 
