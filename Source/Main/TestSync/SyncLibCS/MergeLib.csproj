@@ -55,6 +55,11 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ErikEJ.SqlCeMergeLib.cs" />
+    <Compile Include="PublicationMayHaveExpiredException.cs" />
+    <Compile Include="ReinitializeOption.cs" />
+    <Compile Include="ReplicationProperties.cs" />
+    <Compile Include="SyncArgs.cs" />
+    <Compile Include="SyncStatus.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ErikEJ.SqlCeMergeLib.nuspec" />

@@ -2,7 +2,7 @@
 <package xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <metadata xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <id>ErikEJ.SqlCeMergeLib</id>
-    <version>1.0.0.0</version>
+    <version>1.2.1.0</version>
     <authors>ErikEJ</authors>
     <owners>ErikEJ</owners>
     <licenseUrl>http://sqlcemergelib.codeplex.com/license</licenseUrl>
@@ -13,8 +13,8 @@
     <dependencies/>
   </metadata>
   <files>
-	  <file src="..\..\SyncLib\TestSync\SyncLibCS\bin\Release\SqlCeScripting.dll" target="lib\net" />
-	  <file src="..\..\SyncLib\TestSync\SyncLibCS\bin\Release\ISqlCeScripting.dll" target="lib\net" />
-	  <file src="..\..\SyncLib\TestSync\SyncLibCS\bin\Release\ErikEJ.SqlCeMergeLib.dll" target="lib\net" />
+	  <file src="C:\Code\SqlCeMergeLib\Source\Main\TestSync\SyncLibCS\bin\Release\SqlCeScripting.dll" target="lib\net40" />
+	  <file src="C:\Code\SqlCeMergeLib\Source\Main\TestSync\SyncLibCS\bin\Release\ISqlCeScripting.dll" target="lib\net40" />
+	  <file src="C:\Code\SqlCeMergeLib\Source\Main\TestSync\SyncLibCS\bin\Release\ErikEJ.SqlCeMergeLib.dll" target="lib\net40" />
   </files>
 </package>
