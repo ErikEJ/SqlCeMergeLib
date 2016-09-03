@@ -104,16 +104,16 @@ namespace ErikEJ.SqlCeMergeLib
             _connection = connection;
             CreateDatabaseIfNotExists(connection);
 
-            if (connection.State == System.Data.ConnectionState.Open)
+            if (connection.State == ConnectionState.Open)
             {
                 connection.Close();
             }
 
-            ReplicationProperties props = GetProperties();
+            var props = GetProperties();
 
-            SqlCeReplication repl = new SqlCeReplication();
+            var repl = new SqlCeReplication();
 
-            repl.Subscriber = hostName.ToString();
+            repl.Subscriber = hostName;
             repl.SubscriberConnectionString = GetSubscriberConnectionString(connection);
             if (!string.IsNullOrWhiteSpace(hostName))
             {
@@ -126,7 +126,7 @@ namespace ErikEJ.SqlCeMergeLib
             }
 
             repl.PostSyncCleanup = 2;
-            props = SetProperties(props, repl);
+            SetProperties(props, repl);
 
             InsertSyncLog(connection, hostName, additionalId, "Attempt", additionalInfo);
             if (option == ReinitializeOption.ReinitializeNoUpload)
@@ -138,11 +138,11 @@ namespace ErikEJ.SqlCeMergeLib
                 repl.ReinitializeSubscription(true);
             }
 
-            IAsyncResult ar = repl.BeginSynchronize(
-                new AsyncCallback(this.SyncCompletedCallback),
-                new OnStartTableUpload(this.OnStartTableUploadCallback),
-                new OnStartTableDownload(this.OnStartTableDownloadCallback),
-                new OnSynchronization(this.OnSynchronizationCallback),
+            repl.BeginSynchronize(
+                SyncCompletedCallback,
+                OnStartTableUploadCallback,
+                OnStartTableDownloadCallback,
+                OnSynchronizationCallback,
             repl);
         }
 
@@ -153,12 +153,12 @@ namespace ErikEJ.SqlCeMergeLib
             {
                 repl.EndSynchronize(ar);
                 repl.SaveProperties();
-                string result = "Successfully completed sync" + Environment.NewLine;
+                var result = "Successfully completed sync" + Environment.NewLine;
                 result += string.Format("Number of changes downloaded: {0}{1}", repl.PublisherChanges.ToString(), Environment.NewLine);
                 result += string.Format("Number of changes uploaded: {0}{1}", repl.SubscriberChanges.ToString(), Environment.NewLine);
                 result += string.Format("Number of conflicts at Publisher:   {0}{1}", repl.PublisherConflicts.ToString(), Environment.NewLine);
-                SyncArgs args = new SyncArgs(result, null, 100, SyncStatus.SyncComplete, null);
-                Completed(this, args);
+                var args = new SyncArgs(result, null, 100, SyncStatus.SyncComplete, null);
+                Completed?.Invoke(this, args);
                 InsertSyncLog(_connection, _hostName, _additionalId, "Success", _additionalInfo);
             }
             catch (SqlCeException e)
@@ -173,7 +173,7 @@ namespace ErikEJ.SqlCeMergeLib
                 {
                     args = new SyncArgs("Errors occured during sync", e, 100, SyncStatus.SyncFailed, null);
                 }
-                Completed(this, args);
+                Completed?.Invoke(this, args);
             }
             finally
             {
@@ -190,19 +190,19 @@ namespace ErikEJ.SqlCeMergeLib
         private void OnStartTableUploadCallback(IAsyncResult ar, string tableName)
         {
             var args = new SyncArgs("Began uploading table : " + tableName, null, 0, SyncStatus.BeginUpload, tableName);
-            Progress(this, args);
+            Progress?.Invoke(this, args);
         }
 
         private void OnSynchronizationCallback(IAsyncResult ar, int percentComplete)
         {
             var args = new SyncArgs("Sync with SQL Server is " + percentComplete.ToString() + "% complete.", null, percentComplete, SyncStatus.PercentComplete, null);
-            Progress(this, args);
+            Progress?.Invoke(this, args);
         }
 
         private void OnStartTableDownloadCallback(IAsyncResult ar, string tableName)
         {
             var args = new SyncArgs("Began downloading table : " + tableName, null, 0, SyncStatus.BeginDownload, tableName);
-            Progress(this, args);
+            Progress?.Invoke(this, args);
         }
 
         /// <summary>
@@ -237,7 +237,7 @@ namespace ErikEJ.SqlCeMergeLib
             if (!System.IO.File.Exists(connection.Database))
                 return DateTime.MinValue;
 
-            if (connection.State != System.Data.ConnectionState.Open)
+            if (connection.State != ConnectionState.Open)
             {
                 connection.ConnectionString = GetSubscriberConnectionString(connection);
                 connection.Open();
@@ -286,10 +286,15 @@ namespace ErikEJ.SqlCeMergeLib
         /// <returns>A string with the generated script</returns>
         public string GenerateInsertScripts(SqlCeConnection connection, List<string> tableNames)
         {
+            if (connection.State != ConnectionState.Open)
+            {
+                connection.ConnectionString = GetSubscriberConnectionString(connection);
+            }
+
             using (IRepository repository = new DBRepository(connection.ConnectionString))
             {
-                Generator generator = new Generator(repository);
-                foreach (string tableName in tableNames)
+                var generator = new Generator(repository);
+                foreach (var tableName in tableNames)
                 {
                     generator.GenerateTableData(tableName, false);    
                 }
@@ -318,8 +323,6 @@ namespace ErikEJ.SqlCeMergeLib
         /// <returns></returns>
         public bool Validate(SqlCeConnection connection, bool isReadOnly)
         {
-            bool isValid = true;
-
             if (!System.IO.File.Exists(connection.Database))
             {
                 return false;
@@ -327,14 +330,14 @@ namespace ErikEJ.SqlCeMergeLib
 
             if (System.IO.File.Exists(connection.Database))
             {
-                System.IO.FileInfo fi = new System.IO.FileInfo(connection.Database);
+                var fi = new System.IO.FileInfo(connection.Database);
                 if (fi.Length < 20481)
                 {
                     return false;
                 }
             }
 
-            if (connection.State != System.Data.ConnectionState.Open)
+            if (connection.State != ConnectionState.Open)
             {
                 connection.ConnectionString = GetSubscriberConnectionString(connection);
                 connection.Open();
@@ -373,7 +376,7 @@ namespace ErikEJ.SqlCeMergeLib
                 }
             }
 
-            return isValid;
+            return true;
         }
 
         /// <summary>
@@ -381,12 +384,12 @@ namespace ErikEJ.SqlCeMergeLib
         /// </summary>
         /// <param name="e"></param>
         /// <returns>A formatted error string</returns>
-        public string ShowErrors(System.Data.SqlServerCe.SqlCeException e)
+        public string ShowErrors(SqlCeException e)
         {
-            System.Data.SqlServerCe.SqlCeErrorCollection errorCollection = e.Errors;
+            var errorCollection = e.Errors;
 
-            StringBuilder bld = new StringBuilder();
-            Exception inner = e.InnerException;
+            var bld = new StringBuilder();
+            var inner = e.InnerException;
 
             if (!string.IsNullOrEmpty(e.HelpLink))
             {
@@ -396,10 +399,10 @@ namespace ErikEJ.SqlCeMergeLib
 
             if (null != inner)
             {
-                bld.Append("\nInner Exception: " + inner.ToString());
+                bld.Append("\nInner Exception: " + inner);
             }
             // Enumerate the errors to a message box.
-            foreach (System.Data.SqlServerCe.SqlCeError err in errorCollection)
+            foreach (SqlCeError err in errorCollection)
             {
                 bld.Append("\n Error Code: 0x" + err.HResult.ToString("X", System.Globalization.CultureInfo.InvariantCulture));
                 bld.Append("\n Message   : " + err.Message);
@@ -407,13 +410,13 @@ namespace ErikEJ.SqlCeMergeLib
                 bld.Append("\n Source    : " + err.Source);
 
                 // Enumerate each numeric parameter for the error.
-                foreach (int numPar in err.NumericErrorParameters)
+                foreach (var numPar in err.NumericErrorParameters)
                 {
                     if (0 != numPar) bld.Append("\n Num. Par. : " + numPar);
                 }
 
                 // Enumerate each string parameter for the error.
-                foreach (string errPar in err.ErrorParameters)
+                foreach (var errPar in err.ErrorParameters)
                 {
                     if (!string.IsNullOrEmpty(errPar)) bld.Append("\n Err. Par. : " + errPar);
                 }
@@ -434,7 +437,7 @@ namespace ErikEJ.SqlCeMergeLib
             }
         }
 
-        private static ReplicationProperties SetProperties(ReplicationProperties props, SqlCeReplication repl)
+        private static void SetProperties(ReplicationProperties props, SqlCeReplication repl)
         {
             if (props.UseNT)
             {
@@ -444,7 +447,7 @@ namespace ErikEJ.SqlCeMergeLib
             {
                 repl.PublisherSecurityMode = SecurityType.DBAuthentication;
             }
-            if (props.UseProxy == true)
+            if (props.UseProxy)
             {
                 repl.InternetProxyLogin = props.InternetProxyLogin;
                 repl.InternetProxyPassword = props.InternetProxyPassword;
@@ -468,29 +471,30 @@ namespace ErikEJ.SqlCeMergeLib
                 repl.ReceiveTimeout = props.ReceiveTimeout;
             if (props.SendTimeout > 0)
                 repl.SendTimeout = props.SendTimeout;
-            return props;
         }
 
         private ReplicationProperties GetProperties()
         {
-            if (this.ReplicationProperties != null)
-                return this.ReplicationProperties;
-            
-            var props = new ReplicationProperties();
-            props.InternetLogin = ConfigurationManager.AppSettings[_configPrefix + "InternetLogin"];
-            props.InternetPassword = ConfigurationManager.AppSettings[_configPrefix + "InternetPassword"];
-            props.InternetUrl = ConfigurationManager.AppSettings[_configPrefix + "InternetUrl"];
-            props.Publication = ConfigurationManager.AppSettings[_configPrefix + "Publication"];
-            props.Publisher = ConfigurationManager.AppSettings[_configPrefix + "Publisher"];
-            props.PublisherDatabase = ConfigurationManager.AppSettings[_configPrefix + "PublisherDatabase"];
-            props.PublisherLogin = ConfigurationManager.AppSettings[_configPrefix + "PublisherLogin"];
-            props.PublisherPassword = ConfigurationManager.AppSettings[_configPrefix + "PublisherPassword"];
-            props.UseNT = Convert.ToBoolean(ConfigurationManager.AppSettings[_configPrefix + "UseNT"]);
-            props.Subscriber = ConfigurationManager.AppSettings[_configPrefix + "Subscriber"];
-            props.UseProxy = Convert.ToBoolean(ConfigurationManager.AppSettings[_configPrefix + "UseProxy"]);
-            props.InternetProxyLogin = ConfigurationManager.AppSettings[_configPrefix + "InternetProxyLogin"];
-            props.InternetProxyPassword = ConfigurationManager.AppSettings[_configPrefix + "InternetProxyPassword"];
-            props.InternetProxyServer = ConfigurationManager.AppSettings[_configPrefix + "InternetProxyServer"];
+            if (ReplicationProperties != null)
+                return ReplicationProperties;
+
+            var props = new ReplicationProperties
+            {
+                InternetLogin = ConfigurationManager.AppSettings[_configPrefix + "InternetLogin"],
+                InternetPassword = ConfigurationManager.AppSettings[_configPrefix + "InternetPassword"],
+                InternetUrl = ConfigurationManager.AppSettings[_configPrefix + "InternetUrl"],
+                Publication = ConfigurationManager.AppSettings[_configPrefix + "Publication"],
+                Publisher = ConfigurationManager.AppSettings[_configPrefix + "Publisher"],
+                PublisherDatabase = ConfigurationManager.AppSettings[_configPrefix + "PublisherDatabase"],
+                PublisherLogin = ConfigurationManager.AppSettings[_configPrefix + "PublisherLogin"],
+                PublisherPassword = ConfigurationManager.AppSettings[_configPrefix + "PublisherPassword"],
+                UseNT = Convert.ToBoolean(ConfigurationManager.AppSettings[_configPrefix + "UseNT"]),
+                Subscriber = ConfigurationManager.AppSettings[_configPrefix + "Subscriber"],
+                UseProxy = Convert.ToBoolean(ConfigurationManager.AppSettings[_configPrefix + "UseProxy"]),
+                InternetProxyLogin = ConfigurationManager.AppSettings[_configPrefix + "InternetProxyLogin"],
+                InternetProxyPassword = ConfigurationManager.AppSettings[_configPrefix + "InternetProxyPassword"],
+                InternetProxyServer = ConfigurationManager.AppSettings[_configPrefix + "InternetProxyServer"]
+            };
             var level = Convert.ToInt16(ConfigurationManager.AppSettings[_configPrefix + "CompressionLevel"]);
             if (level != 0)
                 props.CompressionLevel = Convert.ToInt16(ConfigurationManager.AppSettings[_configPrefix + "CompressionLevel"]);
@@ -515,10 +519,7 @@ namespace ErikEJ.SqlCeMergeLib
             {
                 return conn.ConnectionString + ";Password=" + _dbPassword;
             }
-            else
-            {
-                return conn.ConnectionString;
-            }
+            return conn.ConnectionString;
         }
 
         private void InsertSyncLog(SqlCeConnection connection, string hostName, int otherId, string status, string syncInfo)
@@ -526,12 +527,12 @@ namespace ErikEJ.SqlCeMergeLib
             //TODO Add a SyncLog table to the publication to collect Sync status messages, if desired
             try
             {
-                if (connection.State != System.Data.ConnectionState.Open)
+                if (connection.State != ConnectionState.Open)
                 {
                     connection.Open();
                 }
 
-                using (SqlCeCommand cmd = connection.CreateCommand())
+                using (var cmd = connection.CreateCommand())
                 {
                     cmd.Connection = connection;
                     cmd.CommandText = @"
@@ -559,310 +560,11 @@ namespace ErikEJ.SqlCeMergeLib
                 }
             }
             // Ignore if the table does not exist or this somehow fails anyway
-            catch { }
+            catch
+            {
+                // ignored
+            }
         }
-
         #endregion
-
     }
-
-    /// <summary>
-    /// Merge Replication Properties
-    /// </summary>
-    public class ReplicationProperties
-    {
-        /// <summary>
-        /// true, use NT authorization - false, use database authorization, used to specify the security mode used when connecting to the Publisher. 
-        /// </summary>
-        public bool UseNT { get; set; }
-        /// <summary>
-        /// Specifies the name of the SQL Server Publisher. The Publisher is the computer that is running SQL Server and that contains the publication.
-        /// </summary>
-        public string Publisher { get; set; }
-        /// <summary>
-        /// Specifies the login name used when connecting to the Publisher. 
-        /// </summary>
-        public string PublisherLogin { get; set; }
-        /// <summary>
-        /// Specifies the login password used when connecting to the Publisher. 
-        /// </summary>
-        public string PublisherPassword { get; set; }
-        /// <summary>
-        /// Specifies the name of the publication database. 
-        /// </summary>
-        public string PublisherDatabase { get; set; }
-        /// <summary>
-        /// Specifies the SQL Server publication name that has been enabled for SQL Server Compact subscribers. 
-        /// </summary>
-        public string Publication { get; set; }
-        /// <summary>
-        /// Specifies the URL used to connect to the SQL Server Compact Server Agent. 
-        /// </summary>
-        public string InternetUrl { get; set; }
-        /// <summary>
-        /// Specifies the login name used when connecting to the SQL Server Compact Server Agent. 
-        /// </summary>
-        public string InternetLogin { get; set; }
-        /// <summary>
-        /// Specifies the password used when connecting to the SQL Server Compact Server Agent. 
-        /// </summary>
-        public string InternetPassword { get; set; }
-        /// <summary>
-        /// Specifies the name of the Subscriber. 
-        /// </summary>
-        public string Subscriber { get; set; }
-        /// <summary>
-        /// Specifies the connection string to the SQL Server Compact database. 
-        /// </summary>
-        public string SubscriberConnectionString { get; set; }
-        /// <summary>
-        /// Gets or sets the host name used for the device when connecting to the Publisher. 
-        /// </summary>
-        public string HostName { get; set; }
-
-        ///// <summary>
-        ///// Gets or sets the password to be used for the device when connecting to the SDF file, empty for no password. 
-        ///// </summary>
-        //public string ConnectionPassword { get; set; }
-        
-        
-        /// <summary>
-        /// Gets or sets the Use Proxy flag which determines if the proxy parameters are initialized when 
-        /// connecting to the SQL Server Compact Agent.
-        /// </summary>
-        public bool UseProxy { get; set; }
-        /// <summary>
-        /// Specifies the proxy login used when connecting to the SQL Server Compact Server Agent. 
-        /// </summary>
-        public string InternetProxyLogin { get; set; }
-        /// <summary>
-        /// Specifies the proxy password used when connecting to the SQL Server Compact Server Agent. 
-        /// </summary>
-        public string InternetProxyPassword { get; set; }
-        /// <summary>
-        /// Specifies the proxy server used when connecting to the SQL Server Compact Server Agent. 
-        /// </summary>
-        public string InternetProxyServer { get; set; }
-
-        private short _compressionLevel = 1;
-        /// <summary>
-        /// Specifies the amount of compression that will be used by the compression routines during replication. 
-        /// </summary>
-        public short CompressionLevel 
-        {
-            get
-            {
-                return _compressionLevel;
-            }
-            set
-            {
-                _compressionLevel = value;
-            }
-        }
-
-        private short _connectionRetryTimeout = 120;
-        /// <summary>
-        /// Specifies how long (in seconds) the SQL Server Compact 3.5 SP2 client will continue to retry sending requests after an established connection has failed. 
-        /// </summary>
-        public short ConnectionRetryTimeout 
-        {
-            get
-            {
-                return _connectionRetryTimeout;
-            }
-            set
-            {
-                _connectionRetryTimeout = value;
-            }
-        }
-
-        private int _connectTimeout;
-        /// <summary>
-        /// Gets or sets the amount of time, in milliseconds, that the SqlCeReplication object waits for a connection to the server. 
-        /// </summary>
-        public int ConnectTimeout 
-        {
-            get
-            {
-                return _connectTimeout;
-            }
-            set
-            {
-                _connectTimeout = value;
-            }
-        }
-
-        private int _receiveTimeout = 60000;
-        /// <summary>
-        /// Gets or sets the amount of time, in milliseconds, that the SqlCeReplication object waits for the response to a server request. 
-        /// </summary>
-        public int ReceiveTimeout 
-        {
-            get
-            {
-                return _receiveTimeout;
-            }
-            set
-            {
-                _receiveTimeout = value;
-            }
-        }
-        /// <summary>
-        /// Gets or sets the amount of time, in milliseconds, that the SqlCeReplication object waits to send a request to the server. 
-        /// </summary>
-        public int SendTimeout { get; set; }
-    }
-
-    /// <summary>
-    /// Occurs when the Merge Publiation Subscription has expired
-    /// </summary>
-    public class PublicationMayHaveExpiredException : System.Exception
-    {
-        // The default constructor needs to be defined
-        // explicitly now since it would be gone otherwise.
-        /// <summary>
-        /// Default constructor
-        /// </summary>
-        public PublicationMayHaveExpiredException()
-        {
-        }
-
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="message"></param>
-        public PublicationMayHaveExpiredException(string message)
-            : base(message)
-        {
-        }
-
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="message"></param>
-        /// <param name="innerException"></param>
-        public PublicationMayHaveExpiredException(string message,
-        SqlCeException innerException): base(message, innerException)
-        {
-        }
-
-    }
-
-    /// <summary>
-    /// Sync args
-    /// </summary>
-    public class SyncArgs : System.EventArgs
-    {
-        private int percentComplete;
-        private string message;
-        private Exception exception;
-        private string tableName;
-        private SyncStatus status;
-        
-        /// <summary>
-        /// Construct a new instance of SyncArgs
-        /// </summary>
-        /// <param name="message"></param>
-        /// <param name="ex"></param>
-        /// <param name="percentComplete"></param>
-        /// <param name="status"></param>
-        /// <param name="tableName"></param>
-        public SyncArgs(string message, Exception ex, int percentComplete, SyncStatus status, string tableName)
-        {
-            this.message = message;
-            this.exception = ex;
-            this.percentComplete = percentComplete;
-            this.status = status;
-            this.tableName = tableName;
-        }
-
-        /// <summary>
-        /// Message
-        /// </summary>
-        public string Message
-        {
-            get { return message; }
-        }
-
-        /// <summary>
-        /// Exception
-        /// </summary>
-        public Exception Exception
-        {
-            get { return exception; }
-        }
-
-        /// <summary>
-        /// Percentage complete
-        /// </summary>
-        public int PercentComplete
-        {
-            get { return percentComplete; }
-        }
-
-        /// <summary>
-        /// Status
-        /// </summary>
-        public SyncStatus SyncStatus
-        {
-            get { return status; }
-        }
-
-        /// <summary>
-        /// The table name
-        /// </summary>
-        public string TableName
-        {
-            get { return tableName; }
-        }
-
-    }
-
-    /// <summary>
-    /// How will the subscription be reinitialize
-    /// </summary>
-    public enum ReinitializeOption
-    { 
-        /// <summary>
-        /// Reinitialize and upload subscriber changes first
-        /// </summary>
-        ReinitializeUploadSubscriberChanges,
-        /// <summary>
-        /// Reinitialize do not upload subscriber changes
-        /// </summary>
-        ReinitializeNoUpload,
-        /// <summary>
-        /// Do not reinitialize 
-        /// </summary>
-        None
-    }
-
-    /// <summary>
-    /// The status of the sync event
-    /// </summary>
-    public enum SyncStatus
-    {
-        /// <summary>
-        /// Progress percentage
-        /// </summary>
-        PercentComplete,
-        /// <summary>
-        /// Table upload
-        /// </summary>
-        BeginUpload,
-        /// <summary>
-        /// Table download
-        /// </summary>
-        BeginDownload,
-        /// <summary>
-        /// Sync completed
-        /// </summary>
-        SyncComplete,
-        /// <summary>
-        /// Sync completed with errors
-        /// </summary>
-        SyncFailed
-    }
-
-
 }
