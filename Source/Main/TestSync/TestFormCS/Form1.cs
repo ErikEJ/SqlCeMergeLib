@@ -7,33 +7,33 @@ namespace TestFormCS
 {
     public partial class Form1 : Form
     {
-        private EventHandler myStatusEvent;
-        private SyncArgs syncArgs;
-        private MergeReplication sync = new MergeReplication();
-        private SqlCeConnection conn;
+        private readonly EventHandler _myStatusEvent;
+        private SyncArgs _syncArgs;
+        private readonly MergeReplication _sync = new MergeReplication();
+        private SqlCeConnection _conn;
 
         public Form1()
         {
             InitializeComponent();
-            this.myStatusEvent = new EventHandler(StatusEvent);
+            _myStatusEvent = StatusEvent;
         }
 
         private void StatusEvent(object sender, EventArgs e)
         {
-            textBox1.AppendText(Environment.NewLine + syncArgs.Message);
+            textBox1.AppendText(Environment.NewLine + _syncArgs.Message);
 
-            switch (syncArgs.SyncStatus)
+            switch (_syncArgs.SyncStatus)
             {
                 case SyncStatus.BeginUpload:
-                    textBox1.AppendText(Environment.NewLine + syncArgs.TableName);
+                    textBox1.AppendText(Environment.NewLine + _syncArgs.TableName);
                     break;
 
                 case SyncStatus.PercentComplete:
-                    textBox1.AppendText(Environment.NewLine + syncArgs.PercentComplete.ToString());
+                    textBox1.AppendText(Environment.NewLine + _syncArgs.PercentComplete.ToString());
                     break;
 
                 case SyncStatus.BeginDownload:
-                    textBox1.AppendText(Environment.NewLine + syncArgs.TableName);
+                    textBox1.AppendText(Environment.NewLine + _syncArgs.TableName);
                     break;
 
                 case SyncStatus.SyncComplete:
@@ -43,21 +43,21 @@ namespace TestFormCS
                     break;
 
                 case SyncStatus.SyncFailed:
-                    if ((syncArgs.Exception != null))
+                    if ((_syncArgs.Exception != null))
                     {
-                        switch (syncArgs.Exception.GetType().Name)
+                        switch (_syncArgs.Exception.GetType().Name)
                         {
                             case "PublicationMayHaveExpiredException":
                                 //' Inner exception is SqlCeException in this case
-                                textBox1.AppendText(Environment.NewLine + sync.ShowErrors((SqlCeException)syncArgs.Exception.InnerException));                                
+                                textBox1.AppendText(Environment.NewLine + _sync.ShowErrors((SqlCeException)_syncArgs.Exception.InnerException));                                
                                 // Here we couldb start doing recovery - reset of local db
                                 //sync.GenerateInsertScripts(conn, new List<string> { "test1", "test2" });
                                 break;
                             case "SqlCeException":
-                                textBox1.AppendText(Environment.NewLine + sync.ShowErrors((SqlCeException)syncArgs.Exception));
+                                textBox1.AppendText(Environment.NewLine + _sync.ShowErrors((SqlCeException)_syncArgs.Exception));
                                 break;
                             case "Exception":
-                                textBox1.AppendText(textBox1.Text + Environment.NewLine + syncArgs.Exception.Message);
+                                textBox1.AppendText(textBox1.Text + Environment.NewLine + _syncArgs.Exception.Message);
                                 break;
                         }
                     }
@@ -66,50 +66,51 @@ namespace TestFormCS
             }
         }
 
-        private void  Button1_Click(System.Object sender, System.EventArgs e)
+        private void  Button1_Click(object sender, EventArgs e)
         {
             try
             {
                 button1.Enabled = false;
                 textBox1.Text = string.Empty;
                 string sdfFile = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Merge.sdf");
-                conn = new SqlCeConnection(string.Format("Data Source={0}", sdfFile));
+                _conn = new SqlCeConnection(string.Format("Data Source={0}", sdfFile));
                 
                 //To use a password, use the following syntax
                 //conn = new SqlCeConnection(string.Format("Data Source={0}", sdfFile));
                 //sync.DatabasePassword = "secret";
 
-                textBox1.AppendText("Runtime version (must be 3.5.8088 or higher for Merge with SQL 2012): " + Environment.NewLine + conn.ServerVersion.ToString());
+                if (_conn.ServerVersion != null)
+                    textBox1.AppendText("Runtime version (must be 3.5.8088 or higher for Merge with SQL 2012): " + Environment.NewLine + _conn.ServerVersion);
 
                 //Optionally specify replication properties in code:
                 //sync.ReplicationProperties = new ReplicationProperties();
 
-                DateTime syncDate = sync.GetLastSuccessfulSyncTime(conn);
-                textBox1.AppendText(Environment.NewLine + "Last Sync: " + syncDate.ToString());
+                DateTime syncDate = _sync.GetLastSuccessfulSyncTime(_conn);
+                textBox1.AppendText(Environment.NewLine + "Last Sync: " + syncDate);
                 
-                sync.Completed += SyncCompletedEvent;
-                sync.Progress += SyncProgressEvent;
-                sync.Synchronize(conn, 1002);
+                _sync.Completed += SyncCompletedEvent;
+                _sync.Progress += SyncProgressEvent;
+                _sync.Synchronize(_conn, 1002);
             }
             catch (SqlCeException sqlex)
             {
-                MessageBox.Show(sync.ShowErrors(sqlex));
+                MessageBox.Show(_sync.ShowErrors(sqlex));
                 button1.Enabled = true;
             }
         }
 
         private void SyncCompletedEvent(object sender, SyncArgs e)
         {
-            sync.Completed -= SyncCompletedEvent;
-            sync.Progress -= SyncProgressEvent;
-            syncArgs = e;
-            this.Invoke(myStatusEvent);
+            _sync.Completed -= SyncCompletedEvent;
+            _sync.Progress -= SyncProgressEvent;
+            _syncArgs = e;
+            Invoke(_myStatusEvent);
         }
 
         private void SyncProgressEvent(object sender, SyncArgs e)
         {
-            syncArgs = e;
-            this.Invoke(myStatusEvent);
+            _syncArgs = e;
+            Invoke(_myStatusEvent);
         }
     }
 }
