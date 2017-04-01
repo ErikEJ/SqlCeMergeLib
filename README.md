@@ -1,4 +1,4 @@
-# SqlCeMergeLib
+# What is it?
 
 This library simplifies the code to do Merge Replication from a SQL Server Compact 3.5 SP2 client, with useful helper methods
 
@@ -13,6 +13,10 @@ Features:
 - Properly format a SqlCeException as a string to get all available error information
 - Source includes a demo form to test parameters and see the library in action
 - Exposes the settings described in the [Rob Tiffany "cheat sheet"](http://robtiffany.com/mobile-merge-replication-performance-and-scalability-cheat-sheet/)
+
+# How do I get it?
+
+# How do I use it?
 
 ```csharp
 using ErikEJ.SqlCeMergeLib;
