@@ -20,6 +20,10 @@ Download the [NuGet package](http://www.nuget.org/packages/ErikEJ.SqlCeMergeLib/
 
 # How do I use it?
 
+[Online API documentation](https://erikej.github.io/SqlCeMergeLib/)
+
+[Sample WWinForms app](https://github.com/ErikEJ/SqlCeMergeLib/blob/master/docs/Sample.zip)
+
 ```csharp
 using ErikEJ.SqlCeMergeLib;
 using System.Data.SqlServerCe;
@@ -76,4 +80,5 @@ Configuration:
   </appSettings>
 </configuration>
 ```
+
 
