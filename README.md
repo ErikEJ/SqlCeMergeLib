@@ -22,7 +22,7 @@ Download the [NuGet package](http://www.nuget.org/packages/ErikEJ.SqlCeMergeLib/
 
 [Online API documentation](https://erikej.github.io/SqlCeMergeLib/)
 
-[Sample WWinForms app](https://github.com/ErikEJ/SqlCeMergeLib/blob/master/docs/Sample.zip)
+[Sample WinForms app](https://github.com/ErikEJ/SqlCeMergeLib/blob/master/docs/Sample.zip)
 
 ```csharp
 using ErikEJ.SqlCeMergeLib;
