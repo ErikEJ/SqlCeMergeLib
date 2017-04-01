@@ -80,5 +80,5 @@ Configuration:
   </appSettings>
 </configuration>
 ```
-
+![Screenshot](https://github.com/ErikEJ/SqlCeMergeLib/blob/master/img/repl.jpg)
 
