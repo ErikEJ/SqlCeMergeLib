@@ -5,7 +5,7 @@ This library simplifies the code to do Merge Replication from a SQL Server Compa
 Features:
 
 - Is intended for use from a WinForms or WPF application, and the Synchronize method runs async.
-- Implements best practices for optimal performance, and athttp://www.nuget.org/packages/ErikEJ.SqlCeMergeLib/)tempt to properly detect expired subscriptions, by throwing a PublicationMayHaveExpiredException. 
+- Implements best practices for optimal performance, and attempt to properly detect expired subscriptions, by throwing a PublicationMayHaveExpiredException. 
 - Will create the database file for you as required, so an existing database file is not required.
 - Optionally logs sync status to a SyncLog table (which is a part of the publication)
 - Generate INSERT script in order to rescue local data in case of a disaster (for example publication expiry)
