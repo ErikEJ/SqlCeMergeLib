@@ -442,10 +442,12 @@ namespace ErikEJ.SqlCeMergeLib
             if (props.UseNT)
             {
                 repl.PublisherSecurityMode = SecurityType.NTAuthentication;
+                repl.DistributorSecurityMode = SecurityType.NTAuthentication;
             }
             else
             {
                 repl.PublisherSecurityMode = SecurityType.DBAuthentication;
+                repl.DistributorSecurityMode = SecurityType.DBAuthentication;
             }
             if (props.UseProxy)
             {
@@ -457,6 +459,14 @@ namespace ErikEJ.SqlCeMergeLib
             repl.PublisherLogin = props.PublisherLogin;
             repl.PublisherPassword = props.PublisherPassword;
             repl.PublisherDatabase = props.PublisherDatabase;
+
+            if (!string.IsNullOrEmpty(props.Distributor))
+            {
+                repl.Distributor = props.Distributor;
+                repl.DistributorLogin = props.DistributorLogin;
+                repl.DistributorPassword = props.DistributorPassword;
+            }
+
             repl.Publication = props.Publication;
             repl.InternetUrl = props.InternetUrl;
             repl.InternetLogin = props.InternetLogin;
@@ -488,6 +498,9 @@ namespace ErikEJ.SqlCeMergeLib
                 PublisherDatabase = ConfigurationManager.AppSettings[_configPrefix + "PublisherDatabase"],
                 PublisherLogin = ConfigurationManager.AppSettings[_configPrefix + "PublisherLogin"],
                 PublisherPassword = ConfigurationManager.AppSettings[_configPrefix + "PublisherPassword"],
+                Distributor = ConfigurationManager.AppSettings[_configPrefix + "Distributor"],
+                DistributorLogin = ConfigurationManager.AppSettings[_configPrefix + "DistributorLogin"],
+                DistributorPassword = ConfigurationManager.AppSettings[_configPrefix + "DistributorPassword"],
                 UseNT = Convert.ToBoolean(ConfigurationManager.AppSettings[_configPrefix + "UseNT"]),
                 Subscriber = ConfigurationManager.AppSettings[_configPrefix + "Subscriber"],
                 UseProxy = Convert.ToBoolean(ConfigurationManager.AppSettings[_configPrefix + "UseProxy"]),

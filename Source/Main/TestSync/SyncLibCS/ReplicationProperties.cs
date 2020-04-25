@@ -27,7 +27,19 @@
         /// </summary>
         public string PublisherDatabase { get; set; }
         /// <summary>
-        /// Specifies the SQL Server publication name that has been enabled for SQL Server Compact subscribers. 
+        /// Specifies the name of the Distributor.
+        /// </summary>
+        public string Distributor { get; set; }
+        /// <summary>
+        /// Specifies the login name used when connecting to the Distributor. 
+        /// </summary>
+        public string DistributorLogin { get; set; }
+        /// <summary>
+        /// Specifies the login password used when connecting to the Distributor. 
+        /// </summary>
+        public string DistributorPassword { get; set; }
+        /// <summary>
+        /// Specifies the name of the publication database. 
         /// </summary>
         public string Publication { get; set; }
         /// <summary>
