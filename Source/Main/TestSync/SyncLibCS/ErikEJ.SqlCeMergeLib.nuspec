@@ -5,8 +5,7 @@
     <version>1.2.2.0</version>
     <authors>ErikEJ</authors>
     <owners>ErikEJ</owners>
-    <licenseUrl>http://sqlcemergelib.codeplex.com/license</licenseUrl>
-    <projectUrl>http://sqlcemergelib.codeplex.com/</projectUrl>
+    <projectUrl>https://github.com/ErikEJ/SqlCeMergeLib</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>For SQL Server Compact 3.5 SP2, for easy inclusion of Merge Replication support in your own application. Requires SQL Server Compact 3.5 SP2 runtime installed. See project site for samples and documentation.</description>
     <tags>sqlce sql compact script merge replication</tags>
