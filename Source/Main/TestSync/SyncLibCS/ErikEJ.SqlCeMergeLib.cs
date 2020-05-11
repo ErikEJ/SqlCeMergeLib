@@ -442,12 +442,10 @@ namespace ErikEJ.SqlCeMergeLib
             if (props.UseNT)
             {
                 repl.PublisherSecurityMode = SecurityType.NTAuthentication;
-                repl.DistributorSecurityMode = SecurityType.NTAuthentication;
             }
             else
             {
                 repl.PublisherSecurityMode = SecurityType.DBAuthentication;
-                repl.DistributorSecurityMode = SecurityType.DBAuthentication;
             }
             if (props.UseProxy)
             {
@@ -462,6 +460,14 @@ namespace ErikEJ.SqlCeMergeLib
 
             if (!string.IsNullOrEmpty(props.Distributor))
             {
+                if (props.UseNT)
+                {
+                    repl.DistributorSecurityMode = SecurityType.NTAuthentication;
+                }
+                else
+                {
+                    repl.DistributorSecurityMode = SecurityType.DBAuthentication;
+                }
                 repl.Distributor = props.Distributor;
                 repl.DistributorLogin = props.DistributorLogin;
                 repl.DistributorPassword = props.DistributorPassword;
